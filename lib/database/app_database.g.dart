@@ -42,6 +42,12 @@ class $DownloadEntityTable extends DownloadEntity
   late final GeneratedColumn<String> path = GeneratedColumn<String>(
       'path', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fileNameMeta =
+      const VerificationMeta('fileName');
+  @override
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+      'fileName', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _progressMeta =
       const VerificationMeta('progress');
   @override
@@ -95,6 +101,7 @@ class $DownloadEntityTable extends DownloadEntity
         url,
         status,
         path,
+        fileName,
         progress,
         totalSize,
         speed,
@@ -149,6 +156,12 @@ class $DownloadEntityTable extends DownloadEntity
     } else if (isInserting) {
       context.missing(_pathMeta);
     }
+    if (data.containsKey('fileName')) {
+      context.handle(_fileNameMeta,
+          fileName.isAcceptableOrUnknown(data['fileName']!, _fileNameMeta));
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
+    }
     if (data.containsKey('progress')) {
       context.handle(_progressMeta,
           progress.isAcceptableOrUnknown(data['progress']!, _progressMeta));
@@ -202,6 +215,8 @@ class $DownloadEntityTable extends DownloadEntity
           .read(DriftSqlType.int, data['${effectivePrefix}status'])!,
       path: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      fileName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fileName'])!,
       progress: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}progress']),
       totalSize: attachedDatabase.typeMapping
@@ -235,6 +250,7 @@ class DownloadEntityData extends DataClass
   final String url;
   final int status;
   final String path;
+  final String fileName;
   final double? progress;
   final String? totalSize;
   final String? speed;
@@ -250,6 +266,7 @@ class DownloadEntityData extends DataClass
       required this.url,
       required this.status,
       required this.path,
+      required this.fileName,
       this.progress,
       this.totalSize,
       this.speed,
@@ -267,6 +284,7 @@ class DownloadEntityData extends DataClass
     map['url'] = Variable<String>(url);
     map['status'] = Variable<int>(status);
     map['path'] = Variable<String>(path);
+    map['fileName'] = Variable<String>(fileName);
     if (!nullToAbsent || progress != null) {
       map['progress'] = Variable<double>(progress);
     }
@@ -302,6 +320,7 @@ class DownloadEntityData extends DataClass
       url: Value(url),
       status: Value(status),
       path: Value(path),
+      fileName: Value(fileName),
       progress: progress == null && nullToAbsent
           ? const Value.absent()
           : Value(progress),
@@ -334,6 +353,7 @@ class DownloadEntityData extends DataClass
       url: serializer.fromJson<String>(json['url']),
       status: serializer.fromJson<int>(json['status']),
       path: serializer.fromJson<String>(json['path']),
+      fileName: serializer.fromJson<String>(json['fileName']),
       progress: serializer.fromJson<double?>(json['progress']),
       totalSize: serializer.fromJson<String?>(json['totalSize']),
       speed: serializer.fromJson<String?>(json['speed']),
@@ -354,6 +374,7 @@ class DownloadEntityData extends DataClass
       'url': serializer.toJson<String>(url),
       'status': serializer.toJson<int>(status),
       'path': serializer.toJson<String>(path),
+      'fileName': serializer.toJson<String>(fileName),
       'progress': serializer.toJson<double?>(progress),
       'totalSize': serializer.toJson<String?>(totalSize),
       'speed': serializer.toJson<String?>(speed),
@@ -372,6 +393,7 @@ class DownloadEntityData extends DataClass
           String? url,
           int? status,
           String? path,
+          String? fileName,
           Value<double?> progress = const Value.absent(),
           Value<String?> totalSize = const Value.absent(),
           Value<String?> speed = const Value.absent(),
@@ -387,6 +409,7 @@ class DownloadEntityData extends DataClass
         url: url ?? this.url,
         status: status ?? this.status,
         path: path ?? this.path,
+        fileName: fileName ?? this.fileName,
         progress: progress.present ? progress.value : this.progress,
         totalSize: totalSize.present ? totalSize.value : this.totalSize,
         speed: speed.present ? speed.value : this.speed,
@@ -404,6 +427,7 @@ class DownloadEntityData extends DataClass
       url: data.url.present ? data.url.value : this.url,
       status: data.status.present ? data.status.value : this.status,
       path: data.path.present ? data.path.value : this.path,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
       progress: data.progress.present ? data.progress.value : this.progress,
       totalSize: data.totalSize.present ? data.totalSize.value : this.totalSize,
       speed: data.speed.present ? data.speed.value : this.speed,
@@ -424,6 +448,7 @@ class DownloadEntityData extends DataClass
           ..write('url: $url, ')
           ..write('status: $status, ')
           ..write('path: $path, ')
+          ..write('fileName: $fileName, ')
           ..write('progress: $progress, ')
           ..write('totalSize: $totalSize, ')
           ..write('speed: $speed, ')
@@ -437,8 +462,22 @@ class DownloadEntityData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, title, thumbnail, url, status, path,
-      progress, totalSize, speed, eta, frag, totalFrag, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      id,
+      title,
+      thumbnail,
+      url,
+      status,
+      path,
+      fileName,
+      progress,
+      totalSize,
+      speed,
+      eta,
+      frag,
+      totalFrag,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -449,6 +488,7 @@ class DownloadEntityData extends DataClass
           other.url == this.url &&
           other.status == this.status &&
           other.path == this.path &&
+          other.fileName == this.fileName &&
           other.progress == this.progress &&
           other.totalSize == this.totalSize &&
           other.speed == this.speed &&
@@ -466,6 +506,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
   final Value<String> url;
   final Value<int> status;
   final Value<String> path;
+  final Value<String> fileName;
   final Value<double?> progress;
   final Value<String?> totalSize;
   final Value<String?> speed;
@@ -482,6 +523,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
     this.url = const Value.absent(),
     this.status = const Value.absent(),
     this.path = const Value.absent(),
+    this.fileName = const Value.absent(),
     this.progress = const Value.absent(),
     this.totalSize = const Value.absent(),
     this.speed = const Value.absent(),
@@ -499,6 +541,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
     required String url,
     required int status,
     required String path,
+    required String fileName,
     this.progress = const Value.absent(),
     this.totalSize = const Value.absent(),
     this.speed = const Value.absent(),
@@ -513,7 +556,8 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
         thumbnail = Value(thumbnail),
         url = Value(url),
         status = Value(status),
-        path = Value(path);
+        path = Value(path),
+        fileName = Value(fileName);
   static Insertable<DownloadEntityData> custom({
     Expression<String>? id,
     Expression<String>? title,
@@ -521,6 +565,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
     Expression<String>? url,
     Expression<int>? status,
     Expression<String>? path,
+    Expression<String>? fileName,
     Expression<double>? progress,
     Expression<String>? totalSize,
     Expression<String>? speed,
@@ -538,6 +583,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
       if (url != null) 'url': url,
       if (status != null) 'status': status,
       if (path != null) 'path': path,
+      if (fileName != null) 'fileName': fileName,
       if (progress != null) 'progress': progress,
       if (totalSize != null) 'totalSize': totalSize,
       if (speed != null) 'speed': speed,
@@ -557,6 +603,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
       Value<String>? url,
       Value<int>? status,
       Value<String>? path,
+      Value<String>? fileName,
       Value<double?>? progress,
       Value<String?>? totalSize,
       Value<String?>? speed,
@@ -573,6 +620,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
       url: url ?? this.url,
       status: status ?? this.status,
       path: path ?? this.path,
+      fileName: fileName ?? this.fileName,
       progress: progress ?? this.progress,
       totalSize: totalSize ?? this.totalSize,
       speed: speed ?? this.speed,
@@ -605,6 +653,9 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
     }
     if (path.present) {
       map['path'] = Variable<String>(path.value);
+    }
+    if (fileName.present) {
+      map['fileName'] = Variable<String>(fileName.value);
     }
     if (progress.present) {
       map['progress'] = Variable<double>(progress.value);
@@ -645,6 +696,7 @@ class DownloadEntityCompanion extends UpdateCompanion<DownloadEntityData> {
           ..write('url: $url, ')
           ..write('status: $status, ')
           ..write('path: $path, ')
+          ..write('fileName: $fileName, ')
           ..write('progress: $progress, ')
           ..write('totalSize: $totalSize, ')
           ..write('speed: $speed, ')
@@ -678,6 +730,7 @@ typedef $$DownloadEntityTableCreateCompanionBuilder = DownloadEntityCompanion
   required String url,
   required int status,
   required String path,
+  required String fileName,
   Value<double?> progress,
   Value<String?> totalSize,
   Value<String?> speed,
@@ -696,6 +749,7 @@ typedef $$DownloadEntityTableUpdateCompanionBuilder = DownloadEntityCompanion
   Value<String> url,
   Value<int> status,
   Value<String> path,
+  Value<String> fileName,
   Value<double?> progress,
   Value<String?> totalSize,
   Value<String?> speed,
@@ -733,6 +787,9 @@ class $$DownloadEntityTableFilterComposer
 
   ColumnFilters<String> get path => $composableBuilder(
       column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fileName => $composableBuilder(
+      column: $table.fileName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get progress => $composableBuilder(
       column: $table.progress, builder: (column) => ColumnFilters(column));
@@ -786,6 +843,9 @@ class $$DownloadEntityTableOrderingComposer
   ColumnOrderings<String> get path => $composableBuilder(
       column: $table.path, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get fileName => $composableBuilder(
+      column: $table.fileName, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get progress => $composableBuilder(
       column: $table.progress, builder: (column) => ColumnOrderings(column));
 
@@ -837,6 +897,9 @@ class $$DownloadEntityTableAnnotationComposer
 
   GeneratedColumn<String> get path =>
       $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
 
   GeneratedColumn<double> get progress =>
       $composableBuilder(column: $table.progress, builder: (column) => column);
@@ -896,6 +959,7 @@ class $$DownloadEntityTableTableManager extends RootTableManager<
             Value<String> url = const Value.absent(),
             Value<int> status = const Value.absent(),
             Value<String> path = const Value.absent(),
+            Value<String> fileName = const Value.absent(),
             Value<double?> progress = const Value.absent(),
             Value<String?> totalSize = const Value.absent(),
             Value<String?> speed = const Value.absent(),
@@ -913,6 +977,7 @@ class $$DownloadEntityTableTableManager extends RootTableManager<
             url: url,
             status: status,
             path: path,
+            fileName: fileName,
             progress: progress,
             totalSize: totalSize,
             speed: speed,
@@ -930,6 +995,7 @@ class $$DownloadEntityTableTableManager extends RootTableManager<
             required String url,
             required int status,
             required String path,
+            required String fileName,
             Value<double?> progress = const Value.absent(),
             Value<String?> totalSize = const Value.absent(),
             Value<String?> speed = const Value.absent(),
@@ -947,6 +1013,7 @@ class $$DownloadEntityTableTableManager extends RootTableManager<
             url: url,
             status: status,
             path: path,
+            fileName: fileName,
             progress: progress,
             totalSize: totalSize,
             speed: speed,

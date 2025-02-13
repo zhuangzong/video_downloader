@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_downloader/utils/custom_http_overrides.dart';
+import 'package:video_downloader/utils/sp_constant.dart';
 
 import 'package:video_downloader/utils/sp_utils.dart';
 
@@ -16,14 +20,23 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await SpUtils.init();
+  HttpOverrides.global = CustomHttpOverrides();
   db = AppDatabase();
-  final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
-  final deviceLanguage = deviceLocale.languageCode;
   Locale defaultLocale;
-  if (deviceLanguage == 'zh') {
-    defaultLocale = const Locale('zh', 'CN');
+  if (SpUtils.getString(SpConstant.language).isEmpty) {
+    final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    final deviceLanguage = deviceLocale.languageCode;
+    if (deviceLanguage == 'zh') {
+      defaultLocale = const Locale('zh', 'CN');
+      SpUtils.putString(SpConstant.language, 'zh-CN');
+    } else {
+      defaultLocale = const Locale('en', 'US');
+      SpUtils.putString(SpConstant.language, 'en-US');
+    }
   } else {
-    defaultLocale = const Locale('en', 'US');
+    defaultLocale = Locale.fromSubtags(
+        languageCode: SpUtils.getString(SpConstant.language).split('-')[0],
+        countryCode: SpUtils.getString(SpConstant.language).split('-')[1]);
   }
   runApp(
     EasyLocalization(

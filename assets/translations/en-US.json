@@ -17,6 +17,13 @@
   "delete": "Delete",
   "tip": "Tip",
   "video_analysis": "Video Analysis...",
+  "download_success": "Download Success",
   "delete_confirm": "Are you sure you want to delete?",
+  "language": "Language",
+  "theme": "Theme",
+  "close": "Close",
+  "system": "System",
+  "light": "Light",
+    "dark": "Dark",
   "home_title": "Video Downloader"
 }

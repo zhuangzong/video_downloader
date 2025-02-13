@@ -5,9 +5,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_downloader/database/app_database.dart';
+import 'package:video_downloader/theme/theme_state.dart';
 
 import '../../main.dart';
 import '../add_download/add_download_page.dart';
+import '../settings/setting_page.dart';
 import 'home_controller.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -25,7 +27,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
     globalContainer.listen(updateProvider, (oldValue, newValue) {
       if (newValue != null) {
-        ref.read(homeControllerProvider.notifier).updateDownloadList(newValue);
+        ref
+            .read(homeControllerProvider.notifier)
+            .updateDownloadList(context, newValue);
       }
     });
 
@@ -65,7 +69,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       width: expanded ? 200 : 60,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Color(0xefefefef),
+        color: getColor(ref, Color(0xffefefef), Color(0xFF1E1E1E)),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,
@@ -121,7 +125,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               title: 'settings'.tr(),
               icon: Icons.settings,
               index: -1,
-              onTap: () {}),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const SettingPage();
+                  },
+                );
+              }),
         ],
       ),
     );
@@ -147,7 +158,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding: const EdgeInsets.all(10),
               child: Icon(
                 icon,
-                color: selectedIndex == index ? Colors.white : Colors.black,
+                color: selectedIndex == index
+                    ? Colors.white
+                    : getColor(ref, Colors.black, Colors.white),
               ),
             ),
             if (expanded)
@@ -161,7 +174,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       style: TextStyle(
                           color: selectedIndex == index
                               ? Colors.white
-                              : Colors.black),
+                              : getColor(ref, Colors.black, Colors.white)),
                     )),
               ),
           ],
@@ -186,65 +199,71 @@ class _HomePageState extends ConsumerState<HomePage> {
     return ListView.separated(
       padding: const EdgeInsets.all(20),
       itemBuilder: (BuildContext context, int index) {
-        return Row(
-          children: [
-            SizedBox(
-              width: 120,
-              height: 60,
-              child: downloadList[index].thumbnail.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: CachedNetworkImage(
-                        imageUrl: downloadList[index].thumbnail,
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => _errorImage(),
-                        placeholder: (context, url) => _errorImage(),
-                      ))
-                  : _errorImage(),
-            ),
-            SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(downloadList[index].title.isEmpty
-                      ? 'video_analysis'.tr()
-                      : downloadList[index].title),
-                  SizedBox(height: 10),
-                  Row(
+        return InkWell(
+          onLongPress: () => _deleteDownload(downloadList[index]),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 120,
+                  height: 60,
+                  child: downloadList[index].thumbnail.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: CachedNetworkImage(
+                            imageUrl: downloadList[index].thumbnail,
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => _errorImage(),
+                            placeholder: (context, url) => _errorImage(),
+                          ))
+                      : _errorImage(),
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 120,
-                        child: Text(downloadList[index].totalSize ?? '0b',
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 12)),
+                      Text(downloadList[index].title.isEmpty
+                          ? 'video_analysis'.tr()
+                          : downloadList[index].title),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 120,
+                            child: Text(downloadList[index].totalSize ?? '0b',
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12)),
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                              downloadList[index].progress == null
+                                  ? 'waiting'.tr()
+                                  : '${'already_downloaded'.tr()}  ${downloadList[index].progress}%',
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 12)),
+                          Spacer(),
+                          Text(downloadList[index].speed ?? '0b/s',
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 12)),
+                        ],
                       ),
-                      SizedBox(width: 20),
-                      Text(
-                          downloadList[index].progress == null
-                              ? 'waiting'.tr()
-                              : '${'already_downloaded'.tr()}  ${downloadList[index].progress}%',
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 12)),
-                      Spacer(),
-                      Text(downloadList[index].speed ?? '0b/s',
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 12)),
+                      SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: downloadList[index].progress == null
+                            ? 0
+                            : downloadList[index].progress! / 100,
+                        valueColor: AlwaysStoppedAnimation(Colors.blue),
+                        backgroundColor: Colors.grey,
+                      ),
                     ],
                   ),
-                  SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: downloadList[index].progress == null
-                        ? 0
-                        : downloadList[index].progress! / 100,
-                    valueColor: AlwaysStoppedAnimation(Colors.blue),
-                    backgroundColor: Colors.grey,
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(width: 20),
+              ],
             ),
-            SizedBox(width: 20),
-          ],
+          ),
         );
       },
       separatorBuilder: (BuildContext context, int index) {
@@ -272,53 +291,37 @@ class _HomePageState extends ConsumerState<HomePage> {
     return ListView.separated(
       padding: const EdgeInsets.all(20),
       itemBuilder: (BuildContext context, int index) {
-        return InkWell(
-          onTap: () {
-            Process.run('open', [downloadedList[index].path]);
-          },
-          onLongPress: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text('tip'.tr()),
-                  content: Text('delete_confirm'.tr()),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('cancel'.tr()),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        ref
-                            .read(homeControllerProvider.notifier)
-                            .deleteDownload(downloadedList[index]);
-                        Navigator.pop(context);
-                      },
-                      child: Text('delete'.tr()),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
-              SizedBox(
-                width: 120,
-                height: 60,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: downloadedList[index].thumbnail.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: downloadedList[index].thumbnail,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => _errorImage(),
-                            placeholder: (context, url) => _errorImage(),
-                          )
-                        : _errorImage()),
+              InkWell(
+                onTap: () => Process.run('open', [
+                  '${downloadedList[index].path}/${downloadedList[index].fileName}'
+                ]),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 120,
+                      height: 60,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: downloadedList[index].thumbnail.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: downloadedList[index].thumbnail,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (context, url, error) =>
+                                      _errorImage(),
+                                  placeholder: (context, url) => _errorImage(),
+                                )
+                              : _errorImage()),
+                    ),
+                    Center(
+                        child: Icon(Icons.play_circle_outline_rounded,
+                            color: Colors.white.withOpacity(0.8), size: 30)),
+                  ],
+                ),
               ),
               SizedBox(width: 10),
               Expanded(
@@ -328,11 +331,20 @@ class _HomePageState extends ConsumerState<HomePage> {
                     Text(downloadedList[index].title,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 10),
-                    Text(downloadedList[index].path,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12)),
+                    InkWell(
+                      onTap: () =>
+                          Process.run('open', [downloadedList[index].path]),
+                      child: Text(downloadedList[index].path,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                            decorationThickness: 2.0,
+                          )),
+                    ),
                   ],
                 ),
               ),
@@ -351,5 +363,32 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  _deleteDownload(DownloadEntityData downloadEntity) {}
+  _deleteDownload(DownloadEntityData downloadEntity) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('tip'.tr()),
+          content: Text('delete_confirm'.tr()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('cancel'.tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                ref
+                    .read(homeControllerProvider.notifier)
+                    .deleteDownload(downloadEntity);
+                Navigator.pop(context);
+              },
+              child: Text('delete'.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

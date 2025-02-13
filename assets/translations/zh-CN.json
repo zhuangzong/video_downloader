@@ -18,5 +18,12 @@
   "tip": "提示",
   "delete_confirm": "确定删除吗？",
   "video_analysis": "视频解析中...",
+  "download_success": "下载成功",
+  "language": "语言",
+  "theme": "主题",
+  "system": "跟随系统",
+  "light": "浅色",
+  "close": "关闭",
+  "dark": "深色",
   "home_title": "视频下载器"
 }

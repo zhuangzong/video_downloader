@@ -69,10 +69,24 @@ class DownloadRunner {
     controller.stream.listen((event) async {
       if (event.startsWith('[download]')) {
         debugPrint(event);
-        if(event.contains('has already been downloaded')) {
-          entity = entity.copyWith(status: DownloadStatus.completed.value);
-          entity = entity.copyWith(path: '$dlPath/${event.split(' has already been downloaded')[0].replaceAll("[download] ", "")}');
-          await saveDownloadEntity(entity);
+        if (event.contains("Unable to open file")) {
+          entity = entity.copyWith(status: DownloadStatus.failed.value);
+          saveDownloadEntity(entity);
+          return;
+        }
+        if (event.contains("[download] Destination: ")) {
+          entity = entity.copyWith(
+              fileName: event.split("[download] Destination: ")[1]);
+          saveDownloadEntity(entity);
+          return;
+        }
+        if (event.contains('has already been downloaded') || event.contains('100% of')) {
+          entity = entity.copyWith(
+              status: DownloadStatus.completed.value,
+              fileName: event
+                  .split(' has already been downloaded')[0]
+                  .replaceAll("[download] ", ""));
+          saveDownloadEntity(entity);
           return;
         }
         Match? match = downloadProgressRegExp.firstMatch(event);
@@ -80,25 +94,28 @@ class DownloadRunner {
           var downloadPercentage = double.parse(match.group(1)!);
           if (downloadPercentage < 100) {
             Match? matchAll = regExp.firstMatch(event);
-            if(matchAll == null) return;
+            if (matchAll == null) return;
             String size = matchAll.group(2) ?? '';
             String speed = matchAll.group(3) ?? '';
             String eta = matchAll.group(4) ?? '';
             String frag = matchAll.group(5) ?? '';
             String totalFrag = matchAll.group(6) ?? '';
-            entity = entity.copyWith(progress: Value(downloadPercentage));
-            entity = entity.copyWith(totalSize: Value(size));
-            entity = entity.copyWith(speed: Value(speed));
-            entity = entity.copyWith(eta: Value(eta));
-            entity = entity.copyWith(frag: Value(frag));
-            entity = entity.copyWith(totalFrag: Value(totalFrag));
-            entity = entity.copyWith(status: DownloadStatus.downloading.value);
+            entity = entity.copyWith(
+                progress: Value(downloadPercentage),
+                totalSize: Value(size),
+                status: DownloadStatus.downloading.value,
+                speed: Value(speed),
+                eta: Value(eta),
+                frag: Value(frag),
+                totalFrag: Value(totalFrag));
           } else {
-            entity = entity.copyWith(progress: Value(downloadPercentage));
-            entity = entity.copyWith(status: DownloadStatus.completed.value);
+            entity = entity.copyWith(
+                progress: Value(downloadPercentage),
+                status: DownloadStatus.completed.value);
+            entity = entity.copyWith();
           }
         }
-        await saveDownloadEntity(entity);
+        saveDownloadEntity(entity);
       } else if (event.startsWith('{')) {
         Map<String, dynamic> json = jsonDecode(event);
         String title = '';
@@ -112,11 +129,12 @@ class DownloadRunner {
         entity = entity.copyWith(title: title);
         entity = entity.copyWith(thumbnail: thumbnail);
         entity = entity.copyWith(status: DownloadStatus.enqueue.value);
-        entity = entity.copyWith(createdAt: Value(DateTime.now().millisecondsSinceEpoch));
-        await saveDownloadEntity(entity);
+        entity = entity.copyWith(
+            createdAt: Value(DateTime.now().millisecondsSinceEpoch));
+        saveDownloadEntity(entity);
       }
     });
-    await saveDownloadEntity(entity);
+    saveDownloadEntity(entity);
 
     String detailsCmd = "$ytDlpPath -j ${config.url}";
     await shell.run(detailsCmd);
@@ -126,7 +144,9 @@ class DownloadRunner {
   }
 
   Future<DownloadEntityData> getDownloadEntity(String id) async {
-    final query = db.select(db.downloadEntity)..where((tbl) => tbl.id.equals(id))..limit(1);
+    final query = db.select(db.downloadEntity)
+      ..where((tbl) => tbl.id.equals(id))
+      ..limit(1);
     DownloadEntityData? data = await query.getSingleOrNull();
     if (data != null) {
       return data;
@@ -140,13 +160,16 @@ class DownloadRunner {
       status: DownloadStatus.enqueue.value,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
+      fileName: '',
     );
     return entity;
   }
 
   saveDownloadEntity(DownloadEntityData entity) async {
-    await db.into(db.downloadEntity).insert(entity, mode: InsertMode.insertOrReplace);
     globalContainer.read(updateProvider.notifier).state = entity;
+    await db
+        .into(db.downloadEntity)
+        .insert(entity, mode: InsertMode.insertOrReplace);
   }
 
   String buildCommand(DownloadConfig config) {

@@ -1,4 +1,5 @@
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -64,7 +65,8 @@ class HomeController extends StateNotifier<HomeState> {
     state = state.copyWith(selectedIndex: index);
   }
 
-  void updateDownloadList(DownloadEntityData data) {
+  void updateDownloadList(BuildContext context, DownloadEntityData data) {
+    debugPrint('updateDownloadList: ${data.status}');
     if(data.status == DownloadStatus.completed.value) {
       final downloadedList = [...state.downloadedList];
       if (downloadedList.any((element) => element.url == data.url)) {
@@ -78,9 +80,15 @@ class HomeController extends StateNotifier<HomeState> {
       final downloadList = [...state.downloadList];
       if (downloadList.any((element) => element.url == data.url)) {
         final index = downloadList.indexWhere((element) => element.url == data.url);
+        debugPrint('index: $index');
         downloadList.removeAt(index);
+        state = state.copyWith(downloadList: downloadList);
+        SnackBar snackBar = SnackBar(
+          content: Text("${data.title} ${'download_success'.tr()}"),
+          duration: const Duration(seconds: 2),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
-      state = state.copyWith(downloadList: downloadList);
     } else {
       final downloadList = [...state.downloadList];
       if (downloadList.any((element) => element.url == data.url)) {

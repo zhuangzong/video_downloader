@@ -14,6 +14,8 @@ class DownloadEntity extends Table {
 
   TextColumn get path => text().named('path')();
 
+  TextColumn get fileName => text().named('fileName')();
+
   RealColumn get progress => real().nullable().named('progress')();
 
   TextColumn get totalSize => text().nullable().named('totalSize')();

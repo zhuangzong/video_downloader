@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_downloader/utils/sp_constant.dart';
 import 'package:video_downloader/utils/sp_utils.dart';
 
+import '../../theme/theme_state.dart';
 import '../../utils/yt_dlp/download_config.dart';
 import '../../utils/yt_dlp/download_runner.dart';
 
@@ -17,7 +18,7 @@ class AddDownloadPage extends ConsumerStatefulWidget {
 
 class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
 
-  final TextEditingController _urlController = TextEditingController(text: "https://www.youtube.com/watch?v=uKBI1Ea8VO0");
+  final TextEditingController _urlController = TextEditingController();
   final TextEditingController _pathController = TextEditingController();
 
   DownloadConfig config = DownloadConfig.defaultConfig();
@@ -45,7 +46,7 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Color(0xffefefef),
+          color: getColor(ref, Color(0xffefefef), Color(0xFF1E1E1E)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -66,9 +67,10 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                             child: TextField(
                               maxLines: 1,
                               controller: _urlController,
+                              style: const TextStyle(color: Colors.black87),
                               decoration: InputDecoration(
                                 hintText: 'add_download_link'.tr(),
-                                hintStyle: const TextStyle(color: Colors.grey),
+                                hintStyle: TextStyle(color: getColor(ref, Colors.grey, Colors.black54)),
                                 fillColor: Colors.white,
                                 focusColor: Colors.white,
                                 hoverColor: Colors.white,
@@ -92,9 +94,10 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                             child: TextField(
                               maxLines: 1,
                               controller: _pathController,
+                              style: const TextStyle(color: Colors.black87),
                               decoration: InputDecoration(
                                 hintText: 'add_path'.tr(),
-                                hintStyle: const TextStyle(color: Colors.grey),
+                                hintStyle: TextStyle(color: getColor(ref, Colors.grey, Colors.black54)),
                                 fillColor: Colors.white,
                                 focusColor: Colors.white,
                                 hoverColor: Colors.white,
