@@ -83,9 +83,8 @@ class DownloadRunner {
         if (event.contains('has already been downloaded') || event.contains('100% of')) {
           entity = entity.copyWith(
               status: DownloadStatus.completed.value,
-              fileName: event
-                  .split(' has already been downloaded')[0]
-                  .replaceAll("[download] ", ""));
+              progress: Value(100.0)
+          );
           saveDownloadEntity(entity);
           return;
         }

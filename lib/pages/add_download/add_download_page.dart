@@ -8,6 +8,7 @@ import 'package:video_downloader/utils/sp_utils.dart';
 import '../../theme/theme_state.dart';
 import '../../utils/yt_dlp/download_config.dart';
 import '../../utils/yt_dlp/download_runner.dart';
+import '../home/home_controller.dart';
 
 class AddDownloadPage extends ConsumerStatefulWidget {
   const AddDownloadPage({super.key});
@@ -162,6 +163,7 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
       dlPath: dlPath,
       config: config,
     ).run();
+    ref.read(homeControllerProvider.notifier).updateSelectedIndex(0);
     Navigator.of(context).pop();
   }
 }

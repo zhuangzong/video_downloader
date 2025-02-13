@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:video_downloader/database/app_database.dart';
 import 'package:video_downloader/theme/theme_state.dart';
 
@@ -293,62 +294,83 @@ class _HomePageState extends ConsumerState<HomePage> {
       itemBuilder: (BuildContext context, int index) {
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              InkWell(
-                onTap: () => Process.run('open', [
-                  '${downloadedList[index].path}/${downloadedList[index].fileName}'
-                ]),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 120,
-                      height: 60,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: downloadedList[index].thumbnail.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: downloadedList[index].thumbnail,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (context, url, error) =>
-                                      _errorImage(),
-                                  placeholder: (context, url) => _errorImage(),
-                                )
-                              : _errorImage()),
-                    ),
-                    Center(
-                        child: Icon(Icons.play_circle_outline_rounded,
-                            color: Colors.white.withOpacity(0.8), size: 30)),
-                  ],
+          child: Slidable(
+            enabled: true,
+            closeOnScroll: true,
+            startActionPane: ActionPane(
+              extentRatio: 100 / 1080,
+              motion: const ScrollMotion(),
+              children: [
+                CustomSlidableAction(
+                  onPressed: (context) => _deleteDownload(downloadedList[index]),
+                  autoClose: false,
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Icon(
+                    Icons.delete,
+                    size: 20,
+                  ),
                 ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(downloadedList[index].title,
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                    SizedBox(height: 10),
-                    InkWell(
-                      onTap: () =>
-                          Process.run('open', [downloadedList[index].path]),
-                      child: Text(downloadedList[index].path,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.blue,
-                            decorationThickness: 2.0,
-                          )),
-                    ),
-                  ],
+              ],
+            ),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => Process.run('open', [
+                    '${downloadedList[index].path}/${downloadedList[index].fileName}'
+                  ]),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 120,
+                        height: 60,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: downloadedList[index].thumbnail.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: downloadedList[index].thumbnail,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) =>
+                                        _errorImage(),
+                                    placeholder: (context, url) => _errorImage(),
+                                  )
+                                : _errorImage()),
+                      ),
+                      Center(
+                          child: Icon(Icons.play_circle_outline_rounded,
+                              color: Colors.white.withOpacity(0.8), size: 30)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(downloadedList[index].title,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      SizedBox(height: 10),
+                      InkWell(
+                        onTap: () =>
+                            Process.run('open', [downloadedList[index].path]),
+                        child: Text(downloadedList[index].path,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.blue,
+                              decorationThickness: 2.0,
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
