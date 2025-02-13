@@ -1,0 +1,22 @@
+{
+  "loading": "加载中...",
+  "settings": "设置",
+  "version_code": "版本号",
+  "downloaded": "下载完成",
+  "download_list": "下载列表",
+  "add_download": "添加下载任务",
+  "video_downloader": "视频下载器",
+  "download_now": "立即下载",
+  "cancel": "取消",
+  "add_download_link": "添加下载链接",
+  "url": "下载链接",
+  "path": "保存路径",
+  "add_path": "请输入下载路径",
+  "waiting": "等待中",
+  "already_downloaded": "已下载",
+  "delete": "删除",
+  "tip": "提示",
+  "delete_confirm": "确定删除吗？",
+  "video_analysis": "视频解析中...",
+  "home_title": "视频下载器"
+}
