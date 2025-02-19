@@ -51,8 +51,9 @@ class DownloadRunner {
         workingDirectory: dlPath, stdout: controller.sink, verbose: false);
     final RegExp downloadProgressRegExp = RegExp(r'\[download\]\s+(\d+\.\d+)%');
 
-    RegExp regExp = RegExp(
-        r'(\d+\.?\d*)% of ~ (\d+\.?\d*\w+) at\s+(\d+\.?\d*\w+/s) ETA (\d+:\d+) \(frag (\d+)/(\d+)\)');
+    final sizeReg = RegExp(r'of\s+~?\s*([\d.]+[A-Za-z]+)\s+at');
+
+    final speedReg = RegExp(r'at\s+([\d.]+\s*\S+)\s+ETA');
 
     var ytDlpPath = '';
     if (Platform.isLinux) ytDlpPath = ytDlpLinux;
@@ -77,43 +78,41 @@ class DownloadRunner {
         if (event.contains("[download] Destination: ")) {
           entity = entity.copyWith(
               fileName: event.split("[download] Destination: ")[1]);
+          debugPrint("fileName: ${entity.fileName}");
           saveDownloadEntity(entity);
           return;
         }
-        if (event.contains('has already been downloaded') || event.contains('100% of')) {
+        if (event.contains('has already been downloaded') ||
+            event.contains('100% of')) {
           entity = entity.copyWith(
-              status: DownloadStatus.completed.value,
-              progress: Value(100.0)
-          );
+              status: DownloadStatus.completed.value, progress: Value(100.0));
           saveDownloadEntity(entity);
           return;
         }
         Match? match = downloadProgressRegExp.firstMatch(event);
         if (match != null && match.group(1) != null) {
           var downloadPercentage = double.parse(match.group(1)!);
-          if (downloadPercentage < 100) {
-            Match? matchAll = regExp.firstMatch(event);
-            if (matchAll == null) return;
-            String size = matchAll.group(2) ?? '';
-            String speed = matchAll.group(3) ?? '';
-            String eta = matchAll.group(4) ?? '';
-            String frag = matchAll.group(5) ?? '';
-            String totalFrag = matchAll.group(6) ?? '';
-            entity = entity.copyWith(
-                progress: Value(downloadPercentage),
-                totalSize: Value(size),
-                status: DownloadStatus.downloading.value,
-                speed: Value(speed),
-                eta: Value(eta),
-                frag: Value(frag),
-                totalFrag: Value(totalFrag));
-          } else {
-            entity = entity.copyWith(
-                progress: Value(downloadPercentage),
-                status: DownloadStatus.completed.value);
-            entity = entity.copyWith();
-          }
+          entity = entity.copyWith(
+              progress: Value(downloadPercentage),
+              status: DownloadStatus.downloading.value);
         }
+        Match? sizeMatch = sizeReg.firstMatch(event);
+        if (sizeMatch != null) {
+          String size = sizeMatch.group(1) ?? '';
+          entity = entity.copyWith(
+            totalSize: Value(size),
+            status: DownloadStatus.downloading.value,
+          );
+        }
+        Match? speedMatch = speedReg.firstMatch(event);
+        if (speedMatch != null) {
+          String speed = speedMatch.group(1) ?? '';
+          entity = entity.copyWith(
+            speed: Value(speed),
+            status: DownloadStatus.downloading.value,
+          );
+        }
+
         saveDownloadEntity(entity);
       } else if (event.startsWith('{')) {
         Map<String, dynamic> json = jsonDecode(event);
@@ -122,7 +121,7 @@ class DownloadRunner {
         if (json.containsKey('title')) {
           title = json['title'];
         }
-        if (json.containsKey('thumbnail')) {
+        if (json.containsKey('thumbnail') && json['thumbnail'] != null) {
           thumbnail = json['thumbnail'];
         }
         entity = entity.copyWith(title: title);
@@ -138,8 +137,7 @@ class DownloadRunner {
     String detailsCmd = "$ytDlpPath -j ${config.url}";
     await shell.run(detailsCmd);
 
-    String command = buildCommand(config);
-    await shell.run("$ytDlpPath $command");
+    String command = buildCommand(config);    await shell.run("$ytDlpPath $command");
   }
 
   Future<DownloadEntityData> getDownloadEntity(String id) async {

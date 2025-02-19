@@ -23,6 +23,7 @@ mixin _$HomeState {
   String get version => throw _privateConstructorUsedError;
   int get selectedIndex => throw _privateConstructorUsedError;
   bool get expanded => throw _privateConstructorUsedError;
+  bool get filter => throw _privateConstructorUsedError;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -41,7 +42,8 @@ abstract class $HomeStateCopyWith<$Res> {
       List<DownloadEntityData> downloadedList,
       String version,
       int selectedIndex,
-      bool expanded});
+      bool expanded,
+      bool filter});
 }
 
 /// @nodoc
@@ -64,6 +66,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? version = null,
     Object? selectedIndex = null,
     Object? expanded = null,
+    Object? filter = null,
   }) {
     return _then(_value.copyWith(
       downloadList: null == downloadList
@@ -86,6 +89,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.expanded
           : expanded // ignore: cast_nullable_to_non_nullable
               as bool,
+      filter: null == filter
+          ? _value.filter
+          : filter // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -103,7 +110,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       List<DownloadEntityData> downloadedList,
       String version,
       int selectedIndex,
-      bool expanded});
+      bool expanded,
+      bool filter});
 }
 
 /// @nodoc
@@ -124,6 +132,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? version = null,
     Object? selectedIndex = null,
     Object? expanded = null,
+    Object? filter = null,
   }) {
     return _then(_$HomeStateImpl(
       downloadList: null == downloadList
@@ -146,6 +155,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.expanded
           : expanded // ignore: cast_nullable_to_non_nullable
               as bool,
+      filter: null == filter
+          ? _value.filter
+          : filter // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -158,7 +171,8 @@ class _$HomeStateImpl implements _HomeState {
       required final List<DownloadEntityData> downloadedList,
       required this.version,
       required this.selectedIndex,
-      required this.expanded})
+      required this.expanded,
+      required this.filter})
       : _downloadList = downloadList,
         _downloadedList = downloadedList;
 
@@ -184,10 +198,12 @@ class _$HomeStateImpl implements _HomeState {
   final int selectedIndex;
   @override
   final bool expanded;
+  @override
+  final bool filter;
 
   @override
   String toString() {
-    return 'HomeState(downloadList: $downloadList, downloadedList: $downloadedList, version: $version, selectedIndex: $selectedIndex, expanded: $expanded)';
+    return 'HomeState(downloadList: $downloadList, downloadedList: $downloadedList, version: $version, selectedIndex: $selectedIndex, expanded: $expanded, filter: $filter)';
   }
 
   @override
@@ -203,7 +219,8 @@ class _$HomeStateImpl implements _HomeState {
             (identical(other.selectedIndex, selectedIndex) ||
                 other.selectedIndex == selectedIndex) &&
             (identical(other.expanded, expanded) ||
-                other.expanded == expanded));
+                other.expanded == expanded) &&
+            (identical(other.filter, filter) || other.filter == filter));
   }
 
   @override
@@ -213,7 +230,8 @@ class _$HomeStateImpl implements _HomeState {
       const DeepCollectionEquality().hash(_downloadedList),
       version,
       selectedIndex,
-      expanded);
+      expanded,
+      filter);
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -230,7 +248,8 @@ abstract class _HomeState implements HomeState {
       required final List<DownloadEntityData> downloadedList,
       required final String version,
       required final int selectedIndex,
-      required final bool expanded}) = _$HomeStateImpl;
+      required final bool expanded,
+      required final bool filter}) = _$HomeStateImpl;
 
   @override
   List<DownloadEntityData> get downloadList;
@@ -242,6 +261,8 @@ abstract class _HomeState implements HomeState {
   int get selectedIndex;
   @override
   bool get expanded;
+  @override
+  bool get filter;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

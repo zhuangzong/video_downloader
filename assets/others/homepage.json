@@ -1,0 +1,37 @@
+{
+  "video_platforms": [
+    {
+      "name": "General",
+      "items": [
+        {
+          "name": "YouTube",
+          "url": "https://www.youtube.com"
+        },
+        {
+          "name": "Vimeo",
+          "url": "https://www.vimeo.com"
+        },
+        {
+          "name": "Dailymotion",
+          "url": "https://www.dailymotion.com"
+        },
+        {
+          "name": "Twitch",
+          "url": "https://www.twitch.tv"
+        },
+        {
+          "name": "Facebook",
+          "url": "https://www.facebook.com"
+        },
+        {
+          "name": "BiliBili",
+          "url": "https://www.bilibili.com"
+        },
+        {
+          "name": "Youku",
+          "url": "https://www.youku.com"
+        }
+      ]
+    }
+  ]
+}

@@ -11,16 +11,21 @@ import '../../utils/yt_dlp/download_runner.dart';
 import '../home/home_controller.dart';
 
 class AddDownloadPage extends ConsumerStatefulWidget {
-  const AddDownloadPage({super.key});
+  final String? url;
+
+  const AddDownloadPage({
+    super.key,
+    this.url,
+  });
 
   @override
   ConsumerState createState() => _AddDownloadPageState();
 }
 
 class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
-
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _pathController = TextEditingController();
+  GlobalKey buttonKey = GlobalKey();
 
   DownloadConfig config = DownloadConfig.defaultConfig();
 
@@ -29,6 +34,9 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.url != null) {
+      _urlController.text = widget.url!;
+    }
     String path = SpUtils.getString(SpConstant.downloadPath);
     if (path.isNotEmpty) {
       dlPath = path;
@@ -42,7 +50,7 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 100,vertical: 50),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 100, vertical: 50),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -62,7 +70,8 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                     children: [
                       Row(
                         children: [
-                          Text('url'.tr(), style: const TextStyle(fontSize: 16)),
+                          Text('url'.tr(),
+                              style: const TextStyle(fontSize: 16)),
                           SizedBox(width: 16),
                           Expanded(
                             child: TextField(
@@ -71,7 +80,9 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                               style: const TextStyle(color: Colors.black87),
                               decoration: InputDecoration(
                                 hintText: 'add_download_link'.tr(),
-                                hintStyle: TextStyle(color: getColor(ref, Colors.grey, Colors.black54)),
+                                hintStyle: TextStyle(
+                                    color: getColor(
+                                        ref, Colors.grey, Colors.black54)),
                                 fillColor: Colors.white,
                                 focusColor: Colors.white,
                                 hoverColor: Colors.white,
@@ -81,7 +92,6 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                                   borderSide: BorderSide.none,
                                 ),
                               ),
-
                             ),
                           ),
                         ],
@@ -89,7 +99,8 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Text('path'.tr(), style: const TextStyle(fontSize: 16)),
+                          Text('path'.tr(),
+                              style: const TextStyle(fontSize: 16)),
                           SizedBox(width: 16),
                           Expanded(
                             child: TextField(
@@ -98,7 +109,9 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                               style: const TextStyle(color: Colors.black87),
                               decoration: InputDecoration(
                                 hintText: 'add_path'.tr(),
-                                hintStyle: TextStyle(color: getColor(ref, Colors.grey, Colors.black54)),
+                                hintStyle: TextStyle(
+                                    color: getColor(
+                                        ref, Colors.grey, Colors.black54)),
                                 fillColor: Colors.white,
                                 focusColor: Colors.white,
                                 hoverColor: Colors.white,
@@ -108,13 +121,17 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                                   borderSide: BorderSide.none,
                                 ),
                                 suffixIcon: IconButton(
-                                  icon: const Icon(Icons.folder, color: Colors.blue,),
+                                  icon: const Icon(
+                                    Icons.folder,
+                                    color: Colors.blue,
+                                  ),
                                   onPressed: () {
                                     FilePicker.platform.getDirectoryPath().then(
-                                          (value) {
+                                      (value) {
                                         if (value != null) {
                                           _pathController.text = value;
-                                          SpUtils.putString(SpConstant.downloadPath, value);
+                                          SpUtils.putString(
+                                              SpConstant.downloadPath, value);
                                         }
                                       },
                                     );
@@ -138,11 +155,12 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child:  Text('cancel'.tr()),
+                  child: Text('cancel'.tr()),
                 ),
                 TextButton(
-                  onPressed: ()=> _addDownload(),
-                  child:  Text('download_now'.tr()),
+                  key: buttonKey,
+                  onPressed: () => _addDownload(),
+                  child: Text('download_now'.tr()),
                 ),
               ],
             ),
@@ -163,7 +181,9 @@ class _AddDownloadPageState extends ConsumerState<AddDownloadPage> {
       dlPath: dlPath,
       config: config,
     ).run();
-    ref.read(homeControllerProvider.notifier).updateSelectedIndex(0);
-    Navigator.of(context).pop();
+    // ref.read(homeControllerProvider.notifier).updateSelectedIndex(0);
+    RenderBox buttonBox = buttonKey.currentContext!.findRenderObject() as RenderBox;
+    Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+    Navigator.of(context).pop(buttonPosition);
   }
 }

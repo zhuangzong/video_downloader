@@ -10,6 +10,7 @@ class SpConstant {
   static const String language = 'language';
 
   static const String theme = 'theme';
+  static const String deleteResource = 'deleteResource';
 
 
   static String downloadPath = 'downloadPath';

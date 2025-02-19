@@ -25,5 +25,9 @@
   "system": "System",
   "light": "Light",
     "dark": "Dark",
+  "webview": "Webview",
+  "tab": "Tab",
+  "delete_resource": "Delete record with local resources",
+  "no_downloaded": "No downloaded",
   "home_title": "Video Downloader"
 }

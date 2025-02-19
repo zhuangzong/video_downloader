@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_windows
+  flutter_inappwebview_windows
   sqlite3_flutter_libs
 )
 

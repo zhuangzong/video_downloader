@@ -26,6 +26,7 @@ final languageProvider = StateProvider<String>((ref) {
 
 final themeProvider = StateProvider<String>((ref) => SpUtils.getString(SpConstant.theme, defValue: "system"));
 
+final deleteResourceProvider = StateProvider<bool>((ref) => SpUtils.getBool(SpConstant.deleteResource, defValue: false));
 
 class _SettingPageState extends ConsumerState<SettingPage> {
 
@@ -59,6 +60,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       _buildLanguage(),
                       const SizedBox(height: 16),
                       _buildTheme(),
+                      const SizedBox(height: 16),
+                      _buildDeleteResource(),
                     ],
                   ),
                 ),
@@ -145,6 +148,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               child: Text(value).tr(),
             );
           }).toList(),
+        ),
+      ],
+    );
+  }
+  Widget _buildDeleteResource(){
+    final deleteResource = ref.watch(deleteResourceProvider);
+    return Row(
+      children: [
+        Text('delete_resource'.tr(), style: const TextStyle(fontSize: 16)),
+        const Spacer(),
+        Switch(
+          value: deleteResource,
+          onChanged: (bool value) {
+            ref.read(deleteResourceProvider.notifier).state = value;
+            SpUtils.putBool(SpConstant.deleteResource, value);
+          },
         ),
       ],
     );
