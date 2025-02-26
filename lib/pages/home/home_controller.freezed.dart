@@ -24,6 +24,7 @@ mixin _$HomeState {
   int get selectedIndex => throw _privateConstructorUsedError;
   bool get expanded => throw _privateConstructorUsedError;
   bool get filter => throw _privateConstructorUsedError;
+  bool get deleteLocal => throw _privateConstructorUsedError;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -43,7 +44,8 @@ abstract class $HomeStateCopyWith<$Res> {
       String version,
       int selectedIndex,
       bool expanded,
-      bool filter});
+      bool filter,
+      bool deleteLocal});
 }
 
 /// @nodoc
@@ -67,6 +69,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? selectedIndex = null,
     Object? expanded = null,
     Object? filter = null,
+    Object? deleteLocal = null,
   }) {
     return _then(_value.copyWith(
       downloadList: null == downloadList
@@ -93,6 +96,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.filter
           : filter // ignore: cast_nullable_to_non_nullable
               as bool,
+      deleteLocal: null == deleteLocal
+          ? _value.deleteLocal
+          : deleteLocal // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -111,7 +118,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       String version,
       int selectedIndex,
       bool expanded,
-      bool filter});
+      bool filter,
+      bool deleteLocal});
 }
 
 /// @nodoc
@@ -133,6 +141,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? selectedIndex = null,
     Object? expanded = null,
     Object? filter = null,
+    Object? deleteLocal = null,
   }) {
     return _then(_$HomeStateImpl(
       downloadList: null == downloadList
@@ -159,6 +168,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.filter
           : filter // ignore: cast_nullable_to_non_nullable
               as bool,
+      deleteLocal: null == deleteLocal
+          ? _value.deleteLocal
+          : deleteLocal // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -172,7 +185,8 @@ class _$HomeStateImpl implements _HomeState {
       required this.version,
       required this.selectedIndex,
       required this.expanded,
-      required this.filter})
+      required this.filter,
+      required this.deleteLocal})
       : _downloadList = downloadList,
         _downloadedList = downloadedList;
 
@@ -200,10 +214,12 @@ class _$HomeStateImpl implements _HomeState {
   final bool expanded;
   @override
   final bool filter;
+  @override
+  final bool deleteLocal;
 
   @override
   String toString() {
-    return 'HomeState(downloadList: $downloadList, downloadedList: $downloadedList, version: $version, selectedIndex: $selectedIndex, expanded: $expanded, filter: $filter)';
+    return 'HomeState(downloadList: $downloadList, downloadedList: $downloadedList, version: $version, selectedIndex: $selectedIndex, expanded: $expanded, filter: $filter, deleteLocal: $deleteLocal)';
   }
 
   @override
@@ -220,7 +236,9 @@ class _$HomeStateImpl implements _HomeState {
                 other.selectedIndex == selectedIndex) &&
             (identical(other.expanded, expanded) ||
                 other.expanded == expanded) &&
-            (identical(other.filter, filter) || other.filter == filter));
+            (identical(other.filter, filter) || other.filter == filter) &&
+            (identical(other.deleteLocal, deleteLocal) ||
+                other.deleteLocal == deleteLocal));
   }
 
   @override
@@ -231,7 +249,8 @@ class _$HomeStateImpl implements _HomeState {
       version,
       selectedIndex,
       expanded,
-      filter);
+      filter,
+      deleteLocal);
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -249,7 +268,8 @@ abstract class _HomeState implements HomeState {
       required final String version,
       required final int selectedIndex,
       required final bool expanded,
-      required final bool filter}) = _$HomeStateImpl;
+      required final bool filter,
+      required final bool deleteLocal}) = _$HomeStateImpl;
 
   @override
   List<DownloadEntityData> get downloadList;
@@ -263,6 +283,8 @@ abstract class _HomeState implements HomeState {
   bool get expanded;
   @override
   bool get filter;
+  @override
+  bool get deleteLocal;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

@@ -27,7 +27,7 @@
   "dark": "深色",
   "webview": "网页浏览",
   "tab": "标签",
-  "delete_resource": "删除记录同时本地资源",
+  "delete_resource": "删除记录同时删除本地资源",
   "no_downloaded": "暂无下载",
   "home_title": "视频下载器"
 }

@@ -296,7 +296,9 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Widget _buildDownloadList() {
     final downloadList = ref.watch(homeControllerProvider).downloadList;
-    return ListView.separated(
+    return downloadList.isEmpty ? Center(
+      child: Text('no_downloaded'.tr(), style: const TextStyle(color: Colors.grey)),
+    ) : ListView.separated(
       padding: const EdgeInsets.all(20),
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
@@ -492,30 +494,48 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   _deleteDownload(DownloadEntityData downloadEntity) {
+    bool deleteResource = ref.watch(homeControllerProvider).deleteLocal;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('tip'.tr()),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('delete_confirm'.tr()),
-              SizedBox(height: 20),
-              Row(
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Checkbox(
-                    value: SpUtils.getBool(SpConstant.deleteResource, defValue: false),
-                    onChanged: (value) {
-                      SpUtils.putBool(SpConstant.deleteResource, value!);
-                      ref.read(homeControllerProvider.notifier).updateFilter(value);
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        deleteResource = !deleteResource;
+                      });
+                      ref
+                          .read(homeControllerProvider.notifier)
+                          .updateDeleteLocal(deleteResource);
                     },
+                      child: Text('delete_confirm'.tr())),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: deleteResource,
+                        onChanged: (value) {
+                          ref
+                              .read(homeControllerProvider.notifier)
+                              .updateDeleteLocal(value!);
+                          setState(() {
+                              deleteResource = value;
+                          });
+                        },
+                      ),
+                      Text('delete_resource'.tr()),
+                    ],
                   ),
-                  Text('delete_resource'.tr()),
                 ],
-              ),
-            ],
+              );
+            }
           ),
           actions: [
             TextButton(

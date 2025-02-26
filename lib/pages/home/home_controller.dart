@@ -35,6 +35,7 @@ class HomeController extends StateNotifier<HomeState> {
           expanded: false,
           filter: false,
           selectedIndex: 0,
+      deleteLocal: false,
         ));
 
   final Ref ref;
@@ -42,7 +43,8 @@ class HomeController extends StateNotifier<HomeState> {
 
   Future init() async {
     String version = await getVersion();
-    state = state.copyWith(version: version);
+    bool deleteResource = SpUtils.getBool(SpConstant.deleteResource, defValue: false);
+    state = state.copyWith(version: version, deleteLocal: deleteResource);
     final downloadList = await getDownloadList();
     state = state.copyWith(downloadList: downloadList);
     final downloadedList = await getDownloadedList();
@@ -78,6 +80,12 @@ class HomeController extends StateNotifier<HomeState> {
     state = state.copyWith(selectedIndex: index, filter: false);
     pageController.animateToPage(index,
         duration: animatedDuration, curve: Curves.ease);
+  }
+
+  void updateDeleteLocal(bool deleteLocal) {
+    debugPrint('deleteLocal: $deleteLocal');
+    state = state.copyWith(deleteLocal: deleteLocal);
+    SpUtils.putBool(SpConstant.deleteResource, deleteLocal);
   }
 
   void updateDownloadList(BuildContext context, DownloadEntityData data) {
@@ -145,5 +153,6 @@ class HomeState with _$HomeState {
     required int selectedIndex,
     required bool expanded,
     required bool filter,
+    required bool deleteLocal,
   }) = _HomeState;
 }
